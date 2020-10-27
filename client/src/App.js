@@ -1,0 +1,68 @@
+import React, { useState, useEffect } from "react";
+
+const App = () => {
+	const [response, setResponse] = useState("");
+	const [post, setPost] = useState("");
+	const [responseToPost, setResponseToPost] = useState("");
+
+	useEffect(() => {
+		callApi()
+			.then((res) => setResponse(res.express))
+			.catch((err) => console.log(err));
+	}, []);
+
+	const callApi = async () => {
+		const response = await fetch("/books");
+		const body = await response.json();
+		if (response.status !== 200) throw Error(body.message);
+
+		return body;
+	};
+
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+		const response = await fetch("/book", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ post: post }),
+		});
+		const body = await response.text();
+
+		setResponseToPost(body);
+	};
+
+	return (
+		<div className="App">
+			<header className="App-header">
+				<p>
+					Edit <code>src/App.js</code> and save to reload.
+				</p>
+				<a
+					className="App-link"
+					href="https://reactjs.org"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					Learn React
+				</a>
+			</header>
+			<p>{response}</p>
+			<form onSubmit={handleSubmit}>
+				<p>
+					<strong>Post to Server:</strong>
+				</p>
+				<input
+					type="text"
+					value={post}
+					onChange={(e) => setPost(e.target.value)}
+				/>
+				<button type="submit">Submit</button>
+			</form>
+			<p>{responseToPost}</p>
+		</div>
+	);
+};
+
+export default App;
